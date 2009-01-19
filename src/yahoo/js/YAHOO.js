@@ -123,11 +123,10 @@ YAHOO.namespace = function() {
  * @return {Boolean}      True if the log operation was successful.
  */
 YAHOO.log = function(msg, cat, src) {
-    var c = (typeof YAHOO_config !== 'undefined') ? YAHOO_config : {},
-    l = YAHOO.widget.Logger,
-    bail = false;
-    
-    var debug = ('debug' in c) ? c.debug : true,
+    var l = YAHOO.widget.Logger,
+    bail = false,
+    c = (typeof YAHOO_config !== 'undefined') ? YAHOO_config : {},
+    debug = ('debug' in c) ? c.debug : true,
     useBrowserConsole = ('useBrowserConsole' in c) ? c.useBrowserConsole : true,
     exc = c.logExclude,
     inc = c.logInclude;
