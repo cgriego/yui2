@@ -108,8 +108,10 @@ YAHOO.namespace = function() {
 };
 
 /**
- * Uses YAHOO.widget.Logger to output a log message, if the widget is
- * available.
+ * If the 'debug' config is true, uses YAHOO.widget.Logger to output a log
+ * message, if the widget is available. If the 'useBrowserConsole' config is
+ * true, it will write to the browser console if available. YUI-specific log
+ * messages will only be present in the -debug versions of the JS files.
  *
  * @method log
  * @static
@@ -121,12 +123,39 @@ YAHOO.namespace = function() {
  * @return {Boolean}      True if the log operation was successful.
  */
 YAHOO.log = function(msg, cat, src) {
-    var l=YAHOO.widget.Logger;
-    if(l && l.log) {
-        return l.log(msg, cat, src);
-    } else {
-        return false;
+    var c = (typeof YAHOO_config !== 'undefined') ? YAHOO_config : {},
+    l = YAHOO.widget.Logger,
+    bail = false;
+    
+    var debug = ('debug' in c) ? c.debug : true,
+    useBrowserConsole = ('useBrowserConsole' in c) ? c.useBrowserConsole : true,
+    exc = c.logExclude,
+    inc = c.logInclude;
+    
+    if (debug) {
+        if (src) {
+            bail = (inc && !(src in inc)) || (exc && (src in exc));
+        }
+        
+        if (!bail) {
+            if (useBrowserConsole) {
+                var m = (src) ? src + ': ' + msg : msg;
+                
+                if (typeof console !== 'undefined') {
+                    var f = (cat && console[cat]) ? cat : 'log';
+                    console[f](m);
+                } else if (typeof opera !== 'undefined') {
+                    opera.postError(m);
+                }
+            }
+            
+            if (l && l.log) {
+                l.log(msg, cat, src);
+            }
+        }
     }
+    
+    return (debug && bail);
 };
 
 /**
