@@ -2,7 +2,8 @@
  * The Logger widget provides a simple way to read or write log messages in
  * JavaScript code. Integration with the YUI Library's debug builds allow
  * implementers to access under-the-hood events, errors, and debugging messages.
- * Output may be read through a LogReader console.
+ * Output may be read through a LogReader console and/or output to a browser
+ * console.
  *
  * @module logger
  * @requires yahoo, event, dom
@@ -20,7 +21,9 @@ if(!YAHOO.widget.Logger) {
     /**
      * The singleton Logger class provides core log management functionality. Saves
      * logs written through the global YAHOO.log function or written by a LogWriter
-     * instance. Provides access to logs for reading by a LogReader instance.
+     * instance. Provides access to logs for reading by a LogReader instance or
+     * native browser console such as the Firebug extension to Firefox or Safari's
+     * JavaScript console through integration with the console.log() method.
      *
      * @class Logger
      * @static
@@ -106,7 +109,8 @@ if(!YAHOO.widget.Logger) {
     /**
      * Saves a log message to the stack and fires newLogEvent. If the log message is
      * assigned to an unknown category, creates a new category. If the log message is
-     * from an unknown source, creates a new source.
+     * from an unknown source, creates a new source. If browser console is enabled,
+     * outputs the log message to browser console.
      *
      * @method log
      * @param sMsg {String} The log message.
@@ -159,7 +163,8 @@ if(!YAHOO.widget.Logger) {
             }
             stack.push(logEntry);
             this.newLogEvent.fire(logEntry);
-
+            YAHOO.log(sMsg, sCategory, sSource, true);
+            
             return true;
         }
         else {
@@ -197,6 +202,32 @@ if(!YAHOO.widget.Logger) {
      */
     YAHOO.widget.Logger.getStartTime = function() {
         return this._startTime;
+    };
+
+    /**
+    * Disables output to the browser's global console.log() function, which is used
+    * by the Firebug extension to Firefox as well as Safari.
+    *
+    * @method disableBrowserConsole
+    * @deprecated Use YAHOO_config.useBrowserConsole
+    */
+    YAHOO.widget.Logger.disableBrowserConsole = function() {
+        YAHOO.log("Logger output to the function console.log() has been disabled.");
+        YAHOO_config = YAHOO_config || {};
+        YAHOO_config.useBrowserConsole = false;
+    };
+
+    /**
+    * Enables output to the browser's global console.log() function, which is used
+    * by the Firebug extension to Firefox as well as Safari.
+    *
+    * @method enableBrowserConsole
+    * @deprecated Use YAHOO_config.useBrowserConsole
+    */
+    YAHOO.widget.Logger.enableBrowserConsole = function() {
+        YAHOO_config = YAHOO_config || {};
+        YAHOO_config.useBrowserConsole = true;
+        YAHOO.log("Logger output to the function console.log() has been enabled.");
     };
 
     /**

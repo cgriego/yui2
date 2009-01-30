@@ -122,14 +122,15 @@ YAHOO.namespace = function() {
  * @param  {String}  src  The source of the the message (opt)
  * @return {Boolean}      True if the log operation was successful.
  */
-YAHOO.log = function(msg, cat, src) {
+YAHOO.log = function(msg, cat, src, silent) {
     var l = YAHOO.widget.Logger,
     bail = false,
     c = (typeof YAHOO_config !== 'undefined') ? YAHOO_config : {},
     debug = ('debug' in c) ? c.debug : true,
     useBrowserConsole = ('useBrowserConsole' in c) ? c.useBrowserConsole : true,
     exc = c.logExclude,
-    inc = c.logInclude;
+    inc = c.logInclude,
+    levels = { debug: 1, info: 1, warn: 1, error: 1 };
     
     if (debug) {
         if (src) {
@@ -141,14 +142,13 @@ YAHOO.log = function(msg, cat, src) {
                 var m = (src) ? src + ': ' + msg : msg;
                 
                 if (typeof console !== 'undefined') {
-                    var f = (cat && console[cat]) ? cat : 'log';
-                    console[f](m);
+                    console[(cat && console[cat] && (cat in levels)) ? cat : 'log'](m);
                 } else if (typeof opera !== 'undefined') {
                     opera.postError(m);
                 }
             }
             
-            if (l && l.log) {
+            if (!silent && l && l.log) {
                 l.log(msg, cat, src);
             }
         }
