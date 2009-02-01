@@ -705,7 +705,7 @@
                     }
 
                     oIFrame.id = "_yuiResizeMonitor";
-                    oIFrame.title = "Text Resize Monitor";
+                    oIFrame.tabIndex = -1;
                     /*
                         Need to set "position" property before inserting the 
                         iframe into the document or Safari's status bar will 
