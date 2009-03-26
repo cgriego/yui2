@@ -829,6 +829,7 @@
          * @param {Function} apply (optional) A function to apply to each element when found 
          * @param {Any} o (optional) An optional arg that is passed to the supplied method
          * @param {Boolean} overrides (optional) Whether or not to override the scope of "method" with "o"
+         * @param {Boolean} firstOnly (optional) If true, only apply to and return the first HTMLElement that passes the test
          * @return {Array} Array of HTMLElements
          */
         getElementsBy: function(method, tag, root, apply, o, overrides, firstOnly) {
