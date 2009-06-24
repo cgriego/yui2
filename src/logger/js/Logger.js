@@ -117,8 +117,10 @@ if(!YAHOO.widget.Logger) {
      * @param sCategory {String} Category of log message, or null.
      * @param sSource {String} Source of LogWriter, or null if global.
      */
-    YAHOO.widget.Logger.log = function(sMsg, sCategory, sSource) {
-        if(("undefined" !== typeof YAHOO_config && ('debug' in YAHOO_config)) ? YAHOO_config.debug : true) {
+    YAHOO.widget.Logger.log = function(sMsg, sCategory, sSource, bSilent) {
+        var c = window.YAHOO_config;
+        
+        if(("undefined" !== typeof c && ('debug' in c)) ? c.debug : true) {
             if(!sCategory) {
                 sCategory = "info"; // default category
             }
@@ -163,7 +165,10 @@ if(!YAHOO.widget.Logger) {
             }
             stack.push(logEntry);
             this.newLogEvent.fire(logEntry);
-            YAHOO.log(sMsg, sCategory, sSource, true);
+            if (!bSilent) {
+              YAHOO.log(sMsg, sCategory, sSource, true);
+            }
+            
             
             return true;
         }
@@ -213,8 +218,8 @@ if(!YAHOO.widget.Logger) {
     */
     YAHOO.widget.Logger.disableBrowserConsole = function() {
         YAHOO.log("Logger output to the function console.log() has been disabled.");
-        YAHOO_config = YAHOO_config || {};
-        YAHOO_config.useBrowserConsole = false;
+        window.YAHOO_config = window.YAHOO_config || {};
+        window.YAHOO_config.useBrowserConsole = false;
     };
 
     /**
@@ -225,8 +230,8 @@ if(!YAHOO.widget.Logger) {
     * @deprecated Use YAHOO_config.useBrowserConsole
     */
     YAHOO.widget.Logger.enableBrowserConsole = function() {
-        YAHOO_config = YAHOO_config || {};
-        YAHOO_config.useBrowserConsole = true;
+        window.YAHOO_config = window.YAHOO_config || {};
+        window.YAHOO_config.useBrowserConsole = true;
         YAHOO.log("Logger output to the function console.log() has been enabled.");
     };
 

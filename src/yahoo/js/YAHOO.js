@@ -108,10 +108,11 @@ YAHOO.namespace = function() {
 };
 
 /**
- * If the 'debug' config is true, uses YAHOO.widget.Logger to output a log
- * message, if the widget is available. If the 'useBrowserConsole' config is
- * true, it will write to the browser console if available. YUI-specific log
- * messages will only be present in the -debug versions of the JS files.
+ * Uses YAHOO.widget.Logger to output a log message, if the widget is
+ * available and if YAHOO_config.debug is not false. If
+ * YAHOO_config.useBrowserConsole is not false, it will also write to
+ * the browser console, if available. YUI-specific log messages will
+ * only be present in the -debug versions of the JS files.
  *
  * @method log
  * @static
@@ -125,12 +126,14 @@ YAHOO.namespace = function() {
 YAHOO.log = function(msg, cat, src, silent) {
     var l = YAHOO.widget.Logger,
     bail = false,
-    c = (typeof YAHOO_config !== 'undefined') ? YAHOO_config : {},
-    debug = ('debug' in c) ? c.debug : true,
-    useBrowserConsole = ('useBrowserConsole' in c) ? c.useBrowserConsole : true,
+    c = (typeof window.YAHOO_config !== 'undefined') ? window.YAHOO_config : {},
+    TRUE = true,
+    debug = ('debug' in c) ? c.debug : TRUE,
+    useBrowserConsole = ('useBrowserConsole' in c) ? c.useBrowserConsole : TRUE,
+    m,
     exc = c.logExclude,
     inc = c.logInclude,
-    levels = { debug: 1, info: 1, warn: 1, error: 1 };
+    levels = { debug: TRUE, info: TRUE, warn: TRUE, error: TRUE };
     
     if (debug) {
         if (src) {
@@ -139,7 +142,7 @@ YAHOO.log = function(msg, cat, src, silent) {
         
         if (!bail) {
             if (useBrowserConsole) {
-                var m = (src) ? src + ': ' + msg : msg;
+                m = (src) ? src + ': ' + msg : msg;
                 
                 if (typeof console !== 'undefined') {
                     console[(cat && console[cat] && (cat in levels)) ? cat : 'log'](m);
@@ -149,7 +152,7 @@ YAHOO.log = function(msg, cat, src, silent) {
             }
             
             if (!silent && l && l.log) {
-                l.log(msg, cat, src);
+                l.log(msg, cat, src, TRUE);
             }
         }
     }

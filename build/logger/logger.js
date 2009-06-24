@@ -1587,8 +1587,6 @@ if(!YAHOO.widget.Logger) {
      */
     YAHOO.widget.Logger = {
         // Initialize properties
-        loggerEnabled: true,
-        _browserConsoleEnabled: false,
         categories: ["info","warn","error","time","window"],
         sources: ["global"],
         _stack: [], // holds all log msgs
@@ -1604,15 +1602,6 @@ if(!YAHOO.widget.Logger) {
     // Public properties
     //
     /////////////////////////////////////////////////////////////////////////////
-    /**
-     * True if Logger is enabled, false otherwise.
-     *
-     * @property loggerEnabled
-     * @type Boolean
-     * @static
-     * @default true
-     */
-
     /**
      * Array of categories.
      *
@@ -1646,16 +1635,6 @@ if(!YAHOO.widget.Logger) {
     //
     /////////////////////////////////////////////////////////////////////////////
     /**
-     * Internal property to track whether output to browser console is enabled.
-     *
-     * @property _browserConsoleEnabled
-     * @type Boolean
-     * @static
-     * @default false
-     * @private
-     */
-
-    /**
      * Array to hold all log messages.
      *
      * @property _stack
@@ -1687,7 +1666,7 @@ if(!YAHOO.widget.Logger) {
     /**
      * Saves a log message to the stack and fires newLogEvent. If the log message is
      * assigned to an unknown category, creates a new category. If the log message is
-     * from an unknown source, creates a new source.  If browser console is enabled,
+     * from an unknown source, creates a new source. If browser console is enabled,
      * outputs the log message to browser console.
      *
      * @method log
@@ -1695,8 +1674,10 @@ if(!YAHOO.widget.Logger) {
      * @param sCategory {String} Category of log message, or null.
      * @param sSource {String} Source of LogWriter, or null if global.
      */
-    YAHOO.widget.Logger.log = function(sMsg, sCategory, sSource) {
-        if(this.loggerEnabled) {
+    YAHOO.widget.Logger.log = function(sMsg, sCategory, sSource, bSilent) {
+        var c = window.YAHOO_config;
+        
+        if(("undefined" !== typeof c && ('debug' in c)) ? c.debug : true) {
             if(!sCategory) {
                 sCategory = "info"; // default category
             }
@@ -1741,10 +1722,11 @@ if(!YAHOO.widget.Logger) {
             }
             stack.push(logEntry);
             this.newLogEvent.fire(logEntry);
-
-            if(this._browserConsoleEnabled) {
-                this._printToBrowserConsole(logEntry);
+            if (!bSilent) {
+              YAHOO.log(sMsg, sCategory, sSource, true);
             }
+            
+            
             return true;
         }
         else {
@@ -1760,7 +1742,6 @@ if(!YAHOO.widget.Logger) {
     YAHOO.widget.Logger.reset = function() {
         this._stack = [];
         this._startTime = new Date().getTime();
-        this.loggerEnabled = true;
         this.log("Logger reset");
         this.logResetEvent.fire();
     };
@@ -1786,24 +1767,28 @@ if(!YAHOO.widget.Logger) {
     };
 
     /**
-     * Disables output to the browser's global console.log() function, which is used
-     * by the Firebug extension to Firefox as well as Safari.
-     *
-     * @method disableBrowserConsole
-     */
+    * Disables output to the browser's global console.log() function, which is used
+    * by the Firebug extension to Firefox as well as Safari.
+    *
+    * @method disableBrowserConsole
+    * @deprecated Use YAHOO_config.useBrowserConsole
+    */
     YAHOO.widget.Logger.disableBrowserConsole = function() {
         YAHOO.log("Logger output to the function console.log() has been disabled.");
-        this._browserConsoleEnabled = false;
+        window.YAHOO_config = window.YAHOO_config || {};
+        window.YAHOO_config.useBrowserConsole = false;
     };
 
     /**
-     * Enables output to the browser's global console.log() function, which is used
-     * by the Firebug extension to Firefox as well as Safari.
-     *
-     * @method enableBrowserConsole
-     */
+    * Enables output to the browser's global console.log() function, which is used
+    * by the Firebug extension to Firefox as well as Safari.
+    *
+    * @method enableBrowserConsole
+    * @deprecated Use YAHOO_config.useBrowserConsole
+    */
     YAHOO.widget.Logger.enableBrowserConsole = function() {
-        this._browserConsoleEnabled = true;
+        window.YAHOO_config = window.YAHOO_config || {};
+        window.YAHOO_config.useBrowserConsole = true;
         YAHOO.log("Logger output to the function console.log() has been enabled.");
     };
 
@@ -1956,46 +1941,6 @@ if(!YAHOO.widget.Logger) {
                 }
             }
             return true;
-        }
-    };
-
-    /**
-     * Outputs a log message to global console.log() function.
-     *
-     * @method _printToBrowserConsole
-     * @param oEntry {Object} Log entry object.
-     * @private
-     */
-    YAHOO.widget.Logger._printToBrowserConsole = function(oEntry) {
-        if(window.console && console.log) {
-            var category = oEntry.category;
-            var label = oEntry.category.substring(0,4).toUpperCase();
-
-            var time = oEntry.time;
-            var localTime;
-            if (time.toLocaleTimeString) {
-                localTime  = time.toLocaleTimeString();
-            }
-            else {
-                localTime = time.toString();
-            }
-
-            var msecs = time.getTime();
-            var elapsedTime = (YAHOO.widget.Logger._lastTime) ?
-                (msecs - YAHOO.widget.Logger._lastTime) : 0;
-            YAHOO.widget.Logger._lastTime = msecs;
-
-            var output =
-                localTime + " (" +
-                elapsedTime + "ms): " +
-                oEntry.source + ": ";
-
-            // for bug 1987607
-            if (YAHOO.env.ua.webkit) {
-                output += oEntry.msg;
-            }
-
-            console.log(output, oEntry.msg);
         }
     };
 
