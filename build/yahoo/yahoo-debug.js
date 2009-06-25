@@ -123,7 +123,7 @@ YAHOO.namespace = function() {
  * @param  {String}  src  The source of the the message (opt)
  * @return {Boolean}      True if the log operation was successful.
  */
-YAHOO.log = function(msg, cat, src, silent) {
+YAHOO.log = function(msg, cat, src) {
     var l = YAHOO.widget.Logger,
     bail = false,
     c = (typeof window.YAHOO_config !== 'undefined') ? window.YAHOO_config : {},
@@ -151,7 +151,7 @@ YAHOO.log = function(msg, cat, src, silent) {
                 }
             }
             
-            if (!silent && l && l.log) {
+            if (l && l.log) {
                 l.log(msg, cat, src, TRUE);
             }
         }
