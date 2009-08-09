@@ -130,11 +130,15 @@ YAHOO.namespace = function() {
  */
 YAHOO.log = function(msg, cat, src) {
     var l = YAHOO.widget.Logger,
-    bail = false,
-    c = (typeof window.YAHOO_config !== 'undefined') ? window.YAHOO_config : {},
+    WIN = window,
     TRUE = true,
+    CONSOLE = WIN.console,
+    UNDEFINED = 'undefined',
+    USEBROWSERCONSOLE = 'useBrowserConsole',
+    bail = false,
+    c = WIN.YAHOO_config || {},
     debug = ('debug' in c) ? c.debug : TRUE,
-    useBrowserConsole = ('useBrowserConsole' in c) ? c.useBrowserConsole : TRUE,
+    useBrowserConsole = (USEBROWSERCONSOLE in c) ? c[USEBROWSERCONSOLE] : TRUE,
     m,
     exc = c.logExclude,
     inc = c.logInclude,
@@ -149,9 +153,9 @@ YAHOO.log = function(msg, cat, src) {
             if (useBrowserConsole) {
                 m = (src) ? src + ': ' + msg : msg;
                 
-                if (typeof console !== 'undefined') {
-                    console[(cat && console[cat] && (cat in levels)) ? cat : 'log'](m);
-                } else if (typeof opera !== 'undefined') {
+                if (typeof CONSOLE !== UNDEFINED) {
+                    CONSOLE[(cat && CONSOLE[cat] && (cat in levels)) ? cat : 'log'](m);
+                } else if (typeof opera !== UNDEFINED) {
                     opera.postError(m);
                 }
             }

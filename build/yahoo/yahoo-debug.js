@@ -130,11 +130,15 @@ YAHOO.namespace = function() {
  */
 YAHOO.log = function(msg, cat, src) {
     var l = YAHOO.widget.Logger,
-    bail = false,
-    c = (typeof window.YAHOO_config !== 'undefined') ? window.YAHOO_config : {},
+    WIN = window,
     TRUE = true,
+    CONSOLE = WIN.console,
+    UNDEFINED = 'undefined',
+    USEBROWSERCONSOLE = 'useBrowserConsole',
+    bail = false,
+    c = WIN.YAHOO_config || {},
     debug = ('debug' in c) ? c.debug : TRUE,
-    useBrowserConsole = ('useBrowserConsole' in c) ? c.useBrowserConsole : TRUE,
+    useBrowserConsole = (USEBROWSERCONSOLE in c) ? c[USEBROWSERCONSOLE] : TRUE,
     m,
     exc = c.logExclude,
     inc = c.logInclude,
@@ -149,9 +153,9 @@ YAHOO.log = function(msg, cat, src) {
             if (useBrowserConsole) {
                 m = (src) ? src + ': ' + msg : msg;
                 
-                if (typeof console !== 'undefined') {
-                    console[(cat && console[cat] && (cat in levels)) ? cat : 'log'](m);
-                } else if (typeof opera !== 'undefined') {
+                if (typeof CONSOLE !== UNDEFINED) {
+                    CONSOLE[(cat && CONSOLE[cat] && (cat in levels)) ? cat : 'log'](m);
+                } else if (typeof opera !== UNDEFINED) {
                     opera.postError(m);
                 }
             }
@@ -285,111 +289,17 @@ YAHOO.env.ua = function() {
 
         nav = navigator,
 
-        o = {
+        _ie = 0,
+        _opera = 0,
+        _gecko = 0,
+        _webkit = 0,
+        _mobile = null,
+        _air = 0,
+        _os = null,
 
-        /**
-         * Internet Explorer version number or 0.  Example: 6
-         * @property ie
-         * @type float
-         */
-        ie: 0,
-
-        /**
-         * Opera version number or 0.  Example: 9.2
-         * @property opera
-         * @type float
-         */
-        opera: 0,
-
-        /**
-         * Gecko engine revision number.  Will evaluate to 1 if Gecko 
-         * is detected but the revision could not be found. Other browsers
-         * will be 0.  Example: 1.8
-         * <pre>
-         * Firefox 1.0.0.4: 1.7.8   <-- Reports 1.7
-         * Firefox 1.5.0.9: 1.8.0.9 <-- Reports 1.8
-         * Firefox 2.0.0.3: 1.8.1.3 <-- Reports 1.8
-         * Firefox 3 alpha: 1.9a4   <-- Reports 1.9
-         * </pre>
-         * @property gecko
-         * @type float
-         */
-        gecko: 0,
-
-        /**
-         * AppleWebKit version.  KHTML browsers that are not WebKit browsers 
-         * will evaluate to 1, other browsers 0.  Example: 418.9.1
-         * <pre>
-         * Safari 1.3.2 (312.6): 312.8.1 <-- Reports 312.8 -- currently the 
-         *                                   latest available for Mac OSX 10.3.
-         * Safari 2.0.2:         416     <-- hasOwnProperty introduced
-         * Safari 2.0.4:         418     <-- preventDefault fixed
-         * Safari 2.0.4 (419.3): 418.9.1 <-- One version of Safari may run
-         *                                   different versions of webkit
-         * Safari 2.0.4 (419.3): 419     <-- Tiger installations that have been
-         *                                   updated, but not updated
-         *                                   to the latest patch.
-         * Webkit 212 nightly:   522+    <-- Safari 3.0 precursor (with native SVG
-         *                                   and many major issues fixed).  
-         * 3.x yahoo.com, flickr:422     <-- Safari 3.x hacks the user agent
-         *                                   string when hitting yahoo.com and 
-         *                                   flickr.com.
-         * Safari 3.0.4 (523.12):523.12  <-- First Tiger release - automatic update
-         *                                   from 2.x via the 10.4.11 OS patch
-         * Webkit nightly 1/2008:525+    <-- Supports DOMContentLoaded event.
-         *                                   yahoo.com user agent hack removed.
-         *                                   
-         * </pre>
-         * http://developer.apple.com/internet/safari/uamatrix.html
-         * @property webkit
-         * @type float
-         */
-        webkit: 0,
-
-        /**
-         * The mobile property will be set to a string containing any relevant
-         * user agent information when a modern mobile browser is detected.
-         * Currently limited to Safari on the iPhone/iPod Touch, Nokia N-series
-         * devices with the WebKit-based browser, and Opera Mini.  
-         * @property mobile 
-         * @type string
-         */
-        mobile: null,
-
-        /**
-         * Adobe AIR version number or 0.  Only populated if webkit is detected.
-         * Example: 1.0
-         * @property air
-         * @type float
-         */
-        air: 0,
-
-        /**
-         * Google Caja version number or 0.
-         * @property caja
-         * @type float
-         */
-        caja: nav.cajaVersion,
-
-        /**
-         * Set to true if the page appears to be in SSL
-         * @property secure
-         * @type boolean
-         * @static
-         */
-        secure: false,
-
-        /**
-         * The operating system.  Currently only detecting windows or macintosh
-         * @property os
-         * @type string
-         * @static
-         */
-        os: null
-
-    },
-
-    ua = navigator && navigator.userAgent, 
+    ua = nav && nav.userAgent, 
+    
+    MATCH = 'match',
     
     loc = window && window.location,
 
@@ -397,63 +307,61 @@ YAHOO.env.ua = function() {
     
     m;
 
-    o.secure = href && (href.toLowerCase().indexOf("https") === 0);
-
     if (ua) {
 
         if ((/windows|win32/i).test(ua)) {
-            o.os = 'windows';
+            _os = 'windows';
         } else if ((/macintosh/i).test(ua)) {
-            o.os = 'macintosh';
+            _os = 'macintosh';
         }
     
         // Modern KHTML browsers should qualify as Safari X-Grade
         if ((/KHTML/).test(ua)) {
-            o.webkit=1;
+            _webkit=1;
         }
 
         // Modern WebKit browsers are at least X-Grade
-        m=ua.match(/AppleWebKit\/([^\s]*)/);
+        m=ua[MATCH](/AppleWebKit\/([^\s]*)/);
         if (m&&m[1]) {
-            o.webkit=numberfy(m[1]);
+            _webkit=numberfy(m[1]);
 
             // Mobile browser check
             if (/ Mobile\//.test(ua)) {
-                o.mobile = "Apple"; // iPhone or iPod Touch
+                _mobile = "Apple"; // iPhone or iPod Touch
             } else {
-                m=ua.match(/NokiaN[^\/]*/);
+                m=ua[MATCH](/NokiaN[^\/]*/);
                 if (m) {
-                    o.mobile = m[0]; // Nokia N-series, ex: NokiaN95
+                    _mobile = m[0]; // Nokia N-series, ex: NokiaN95
                 }
             }
 
-            m=ua.match(/AdobeAIR\/([^\s]*)/);
+            m=ua[MATCH](/AdobeAIR\/([^\s]*)/);
             if (m) {
-                o.air = m[0]; // Adobe AIR 1.0 or better
+                _air = m[0]; // Adobe AIR 1.0 or better
             }
 
         }
 
-        if (!o.webkit) { // not webkit
+        if (!_webkit) { // not webkit
             // @todo check Opera/8.01 (J2ME/MIDP; Opera Mini/2.0.4509/1316; fi; U; ssr)
-            m=ua.match(/Opera[\s\/]([^\s]*)/);
+            m=ua[MATCH](/Opera[\s\/]([^\s]*)/);
             if (m&&m[1]) {
-                o.opera=numberfy(m[1]);
-                m=ua.match(/Opera Mini[^;]*/);
+                _opera=numberfy(m[1]);
+                m=ua[MATCH](/Opera Mini[^;]*/);
                 if (m) {
-                    o.mobile = m[0]; // ex: Opera Mini/2.0.4509/1316
+                    _mobile = m[0]; // ex: Opera Mini/2.0.4509/1316
                 }
             } else { // not opera or webkit
-                m=ua.match(/MSIE\s([^;]*)/);
+                m=ua[MATCH](/MSIE\s([^;]*)/);
                 if (m&&m[1]) {
-                    o.ie=numberfy(m[1]);
+                    _ie=numberfy(m[1]);
                 } else { // not opera, webkit, or ie
-                    m=ua.match(/Gecko\/([^\s]*)/);
+                    m=ua[MATCH](/Gecko\/([^\s]*)/);
                     if (m) {
-                        o.gecko=1; // Gecko detected, look for revision
-                        m=ua.match(/rv:([^\s\)]*)/);
+                        _gecko=1; // Gecko detected, look for revision
+                        m=ua[MATCH](/rv:([^\s\)]*)/);
                         if (m&&m[1]) {
-                            o.gecko=numberfy(m[1]);
+                            _gecko=numberfy(m[1]);
                         }
                     }
                 }
@@ -461,7 +369,108 @@ YAHOO.env.ua = function() {
         }
     }
 
-    return o;
+    return {
+
+    /**
+     * Internet Explorer version number or 0.  Example: 6
+     * @property ie
+     * @type float
+     */
+    ie: _ie,
+
+    /**
+     * Opera version number or 0.  Example: 9.2
+     * @property opera
+     * @type float
+     */
+    opera: _opera,
+
+    /**
+     * Gecko engine revision number.  Will evaluate to 1 if Gecko 
+     * is detected but the revision could not be found. Other browsers
+     * will be 0.  Example: 1.8
+     * <pre>
+     * Firefox 1.0.0.4: 1.7.8   <-- Reports 1.7
+     * Firefox 1.5.0.9: 1.8.0.9 <-- Reports 1.8
+     * Firefox 2.0.0.3: 1.8.1.3 <-- Reports 1.8
+     * Firefox 3 alpha: 1.9a4   <-- Reports 1.9
+     * </pre>
+     * @property gecko
+     * @type float
+     */
+    gecko: _gecko,
+
+    /**
+     * AppleWebKit version.  KHTML browsers that are not WebKit browsers 
+     * will evaluate to 1, other browsers 0.  Example: 418.9.1
+     * <pre>
+     * Safari 1.3.2 (312.6): 312.8.1 <-- Reports 312.8 -- currently the 
+     *                                   latest available for Mac OSX 10.3.
+     * Safari 2.0.2:         416     <-- hasOwnProperty introduced
+     * Safari 2.0.4:         418     <-- preventDefault fixed
+     * Safari 2.0.4 (419.3): 418.9.1 <-- One version of Safari may run
+     *                                   different versions of webkit
+     * Safari 2.0.4 (419.3): 419     <-- Tiger installations that have been
+     *                                   updated, but not updated
+     *                                   to the latest patch.
+     * Webkit 212 nightly:   522+    <-- Safari 3.0 precursor (with native SVG
+     *                                   and many major issues fixed).  
+     * 3.x yahoo.com, flickr:422     <-- Safari 3.x hacks the user agent
+     *                                   string when hitting yahoo.com and 
+     *                                   flickr.com.
+     * Safari 3.0.4 (523.12):523.12  <-- First Tiger release - automatic update
+     *                                   from 2.x via the 10.4.11 OS patch
+     * Webkit nightly 1/2008:525+    <-- Supports DOMContentLoaded event.
+     *                                   yahoo.com user agent hack removed.
+     *                                   
+     * </pre>
+     * http://developer.apple.com/internet/safari/uamatrix.html
+     * @property webkit
+     * @type float
+     */
+    webkit: _webkit,
+
+    /**
+     * The mobile property will be set to a string containing any relevant
+     * user agent information when a modern mobile browser is detected.
+     * Currently limited to Safari on the iPhone/iPod Touch, Nokia N-series
+     * devices with the WebKit-based browser, and Opera Mini.  
+     * @property mobile 
+     * @type string
+     */
+    mobile: _mobile,
+
+    /**
+     * Adobe AIR version number or 0.  Only populated if webkit is detected.
+     * Example: 1.0
+     * @property air
+     * @type float
+     */
+    air: _air,
+
+    /**
+     * Google Caja version number or 0.
+     * @property caja
+     * @type float
+     */
+    caja: nav.cajaVersion,
+
+    /**
+     * Set to true if the page appears to be in SSL
+     * @property secure
+     * @type boolean
+     * @static
+     */
+    secure: href && (href.toLowerCase().indexOf("https") === 0),
+
+    /**
+     * The operating system.  Currently only detecting windows or macintosh
+     * @property os
+     * @type string
+     * @static
+     */
+    os: _os
+  };
 }();
 
 /*
@@ -503,16 +512,30 @@ YAHOO.lang = YAHOO.lang || {};
 (function() {
 
 
-var L = YAHOO.lang,
-
-    OP = Object.prototype,
+var Y = YAHOO,
+    L = Y.lang,
+    PUSH = 'push',
+    APPLY = 'apply',
+    LENGTH = 'length',
+    INDEXOF = 'indexOf',
+    TOSTRING = 'toString',
+    PROTOTYPE = 'prototype',
+    CONSTRUCTOR = 'constructor',
+    AUGMENTOBJECT = 'augmentObject',
+    HASOWNPROPERTY = 'hasOwnProperty',
+    ISARRAY = 'isArray',
+    ISNUMBER = 'isNumber',
+    ISOBJECT = 'isObject',
+    ISSTRING = 'isString',
+    ISFUNCTION = 'isFunction',
+    OP = Object[PROTOTYPE],
     ARRAY_TOSTRING = '[object Array]',
     FUNCTION_TOSTRING = '[object Function]',
     OBJECT_TOSTRING = '[object Object]',
     NOTHING = [],
 
     // ADD = ["toString", "valueOf", "hasOwnProperty"],
-    ADD = ["toString", "valueOf"],
+    ADD = [TOSTRING, "valueOf"],
 
     OB = {
 
@@ -523,7 +546,7 @@ var L = YAHOO.lang,
      * @return {boolean} the result
      */
     isArray: function(o) { 
-        return OP.toString.apply(o) === ARRAY_TOSTRING;
+        return OP[TOSTRING][APPLY](o) === ARRAY_TOSTRING;
     },
 
     /**
@@ -554,7 +577,7 @@ var L = YAHOO.lang,
      * @return {boolean} the result
      */
     isFunction: function(o) {
-        return (typeof o === 'function') || OP.toString.apply(o) === FUNCTION_TOSTRING;
+        return (typeof o === 'function') || OP[TOSTRING][APPLY](o) === FUNCTION_TOSTRING;
     },
         
     /**
@@ -585,7 +608,7 @@ var L = YAHOO.lang,
      * @return {boolean} the result
      */  
     isObject: function(o) {
-return (o && (typeof o === 'object' || L.isFunction(o))) || false;
+      return (o && (typeof o === 'object' || L[ISFUNCTION](o))) || false;
     },
         
     /**
@@ -619,14 +642,14 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
      * @static
      * @private
      */
-    _IEEnumFix: (YAHOO.env.ua.ie) ? function(r, s) {
+    _IEEnumFix: (Y.env.ua.ie) ? function(r, s) {
             var i, fname, f;
-            for (i=0;i<ADD.length;i=i+1) {
+            for (i=0;i<ADD[LENGTH];i=i+1) {
 
                 fname = ADD[i];
                 f = s[fname];
 
-                if (L.isFunction(f) && f!=OP[fname]) {
+                if (L[ISFUNCTION](f) && f!=OP[fname]) {
                     r[fname]=f;
                 }
             }
@@ -652,22 +675,22 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
                             "all dependencies are included.");
         }
         var F = function() {}, i;
-        F.prototype=superc.prototype;
-        subc.prototype=new F();
-        subc.prototype.constructor=subc;
-        subc.superclass=superc.prototype;
-        if (superc.prototype.constructor == OP.constructor) {
-            superc.prototype.constructor=superc;
+        F[PROTOTYPE]=superc[PROTOTYPE];
+        subc[PROTOTYPE]=new F();
+        subc[PROTOTYPE][CONSTRUCTOR]=subc;
+        subc.superclass=superc[PROTOTYPE];
+        if (superc[PROTOTYPE][CONSTRUCTOR] == OP[CONSTRUCTOR]) {
+            superc[PROTOTYPE][CONSTRUCTOR]=superc;
         }
     
         if (overrides) {
             for (i in overrides) {
-                if (L.hasOwnProperty(overrides, i)) {
-                    subc.prototype[i]=overrides[i];
+                if (L[HASOWNPROPERTY](overrides, i)) {
+                    subc[PROTOTYPE][i]=overrides[i];
                 }
             }
 
-            L._IEEnumFix(subc.prototype, overrides);
+            L._IEEnumFix(subc[PROTOTYPE], overrides);
         }
     },
    
@@ -699,7 +722,7 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
         }
         var a=arguments, i, p, overrideList=a[2];
         if (overrideList && overrideList!==true) { // only absorb the specified properties
-            for (i=2; i<a.length; i=i+1) {
+            for (i=2; i<a[LENGTH]; i=i+1) {
                 r[a[i]] = s[a[i]];
             }
         } else { // take everything, overwriting only if the third parameter is true
@@ -732,11 +755,11 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
             throw new Error("Augment failed, verify dependencies.");
         }
         //var a=[].concat(arguments);
-        var a=[r.prototype,s.prototype], i;
-        for (i=2;i<arguments.length;i=i+1) {
-            a.push(arguments[i]);
+        var a=[r[PROTOTYPE],s[PROTOTYPE]], i;
+        for (i=2;i<arguments[LENGTH];i=i+1) {
+            a[PUSH](arguments[i]);
         }
-        L.augmentObject.apply(this, a);
+        L[AUGMENTOBJECT][APPLY](this, a);
     },
 
       
@@ -752,57 +775,57 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
      * @return {String} the dump result
      */
     dump: function(o, d) {
-        var i,len,s=[],OBJ="{...}",FUN="f(){...}",
-            COMMA=', ', ARROW=' => ';
+        var i,len,s=[],OBJ="{...}",FUN="f()"+OBJ,
+            COMMA=', ', ARROW=' => ', isObject = L[ISOBJECT];
 
         // Cast non-objects to string
         // Skip dates because the std toString is what we want
         // Skip HTMLElement-like objects because trying to dump 
         // an element will cause an unhandled exception in FF 2.x
-        if (!L.isObject(o)) {
+        if (!isObject(o)) {
             return o + "";
         } else if (o instanceof Date || ("nodeType" in o && "tagName" in o)) {
             return o;
-        } else if  (L.isFunction(o)) {
+        } else if  (L[ISFUNCTION](o)) {
             return FUN;
         }
 
         // dig into child objects the depth specifed. Default 3
-        d = (L.isNumber(d)) ? d : 3;
+        d = (L[ISNUMBER](d)) ? d : 3;
 
         // arrays [1, 2, 3]
-        if (L.isArray(o)) {
-            s.push("[");
-            for (i=0,len=o.length;i<len;i=i+1) {
-                if (L.isObject(o[i])) {
-                    s.push((d > 0) ? L.dump(o[i], d-1) : OBJ);
+        if (L[ISARRAY](o)) {
+            s[PUSH]("[");
+            for (i=0,len=o[LENGTH];i<len;i=i+1) {
+                if (isObject(o[i])) {
+                    s[PUSH]((d > 0) ? L.dump(o[i], d-1) : OBJ);
                 } else {
-                    s.push(o[i]);
+                    s[PUSH](o[i]);
                 }
-                s.push(COMMA);
+                s[PUSH](COMMA);
             }
-            if (s.length > 1) {
+            if (s[LENGTH] > 1) {
                 s.pop();
             }
-            s.push("]");
+            s[PUSH]("]");
         // objects {k1 => v1, k2 => v2}
         } else {
-            s.push("{");
+            s[PUSH]("{");
             for (i in o) {
-                if (L.hasOwnProperty(o, i)) {
-                    s.push(i + ARROW);
-                    if (L.isObject(o[i])) {
-                        s.push((d > 0) ? L.dump(o[i], d-1) : OBJ);
+                if (L[HASOWNPROPERTY](o, i)) {
+                    s[PUSH](i + ARROW);
+                    if (isObject(o[i])) {
+                        s[PUSH]((d > 0) ? L.dump(o[i], d-1) : OBJ);
                     } else {
-                        s.push(o[i]);
+                        s[PUSH](o[i]);
                     }
-                    s.push(COMMA);
+                    s[PUSH](COMMA);
                 }
             }
-            if (s.length > 1) {
+            if (s[LENGTH] > 1) {
                 s.pop();
             }
-            s.push("}");
+            s[PUSH]("}");
         }
 
         return s.join("");
@@ -833,7 +856,7 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
      */
     substitute: function (s, o, f) {
         var i, j, k, key, v, meta, saved=[], token, 
-            DUMP='dump', SPACE=' ', LBRACE='{', RBRACE='}',
+            DUMP='dump', SPACE=' ', LBRACE='{', RBRACE='}', SUBSTRING='substring',
             dump, objstr;
 
 
@@ -842,19 +865,19 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
             if (i < 0) {
                 break;
             }
-            j = s.indexOf(RBRACE, i);
+            j = s[INDEXOF](RBRACE, i);
             if (i + 1 >= j) {
                 break;
             }
 
             //Extract key and meta info 
-            token = s.substring(i + 1, j);
+            token = s[SUBSTRING](i + 1, j);
             key = token;
             meta = null;
-            k = key.indexOf(SPACE);
+            k = key[INDEXOF](SPACE);
             if (k > -1) {
-                meta = key.substring(k + 1);
-                key = key.substring(0, k);
+                meta = key[SUBSTRING](k + 1);
+                key = key[SUBSTRING](0, k);
             }
 
             // lookup the value
@@ -865,19 +888,19 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
                 v = f(key, v, meta);
             }
 
-            if (L.isObject(v)) {
-                if (L.isArray(v)) {
+            if (L[ISOBJECT](v)) {
+                if (L[ISARRAY](v)) {
                     v = L.dump(v, parseInt(meta, 10));
                 } else {
                     meta = meta || "";
 
                     // look for the keyword 'dump', if found force obj dump
-                    dump = meta.indexOf(DUMP);
+                    dump = meta[INDEXOF](DUMP);
                     if (dump > -1) {
-                        meta = meta.substring(4);
+                        meta = meta[SUBSTRING](4);
                     }
 
-                    objstr = v.toString();
+                    objstr = v[TOSTRING]();
 
                     // use the toString if it is not the Object toString 
                     // and the 'dump' meta info was not found
@@ -887,21 +910,21 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
                         v = objstr;
                     }
                 }
-            } else if (!L.isString(v) && !L.isNumber(v)) {
+            } else if (!L[ISSTRING](v) && !L[ISNUMBER](v)) {
                 // This {block} has no replace string. Save it for later.
-                v = "~-" + saved.length + "-~";
-                saved[saved.length] = token;
+                v = "~-" + saved[LENGTH] + "-~";
+                saved[saved[LENGTH]] = token;
 
                 // break;
             }
 
-            s = s.substring(0, i) + v + s.substring(j + 1);
+            s = s[SUBSTRING](0, i) + v + s[SUBSTRING](j + 1);
 
 
         }
 
         // restore saved {block}s
-        for (i=saved.length-1; i>=0; i=i-1) {
+        for (i=saved[LENGTH]-1; i>=0; i=i-1) {
             s = s.replace(new RegExp("~-" + i + "-~"), "{"  + saved[i] + "}", "g");
         }
 
@@ -935,9 +958,9 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
      * @return the new merged object
      */
     merge: function() {
-        var o={}, a=arguments, l=a.length, i;
+        var o={}, a=arguments, l=a[LENGTH], i;
         for (i=0; i<l; i=i+1) {
-            L.augmentObject(o, a[i], true);
+            L[AUGMENTOBJECT](o, a[i], true);
         }
         return o;
     },
@@ -968,7 +991,7 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
         o = o || {};
         var m=fn, d=data, f, r;
 
-        if (L.isString(fn)) {
+        if (L[ISSTRING](fn)) {
             m = o[fn];
         }
 
@@ -976,12 +999,12 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
             throw new TypeError("method undefined");
         }
 
-        if (d && !L.isArray(d)) {
+        if (d && !L[ISARRAY](d)) {
             d = [data];
         }
 
         f = function() {
-            m.apply(o, d || NOTHING);
+            m[APPLY](o, d || NOTHING);
         };
 
         r = (periodic) ? setInterval(f, when) : setTimeout(f, when);
@@ -1009,7 +1032,7 @@ return (o && (typeof o === 'object' || L.isFunction(o))) || false;
      */
     isValue: function(o) {
         // return (o || o === false || o === 0 || o === ''); // Infinity fails
-return (L.isObject(o) || L.isString(o) || L.isNumber(o) || L.isBoolean(o));
+return (L[ISOBJECT](o) || L[ISSTRING](o) || L[ISNUMBER](o) || L.isBoolean(o));
     }
 
 };
@@ -1035,22 +1058,22 @@ return (L.isObject(o) || L.isString(o) || L.isNumber(o) || L.isBoolean(o));
  * @param prop {string} the name of the property to test
  * @return {boolean} the result
  */
-L.hasOwnProperty = (OP.hasOwnProperty) ?
+L[HASOWNPROPERTY] = (OP[HASOWNPROPERTY]) ?
     function(o, prop) {
-        return o && o.hasOwnProperty(prop);
+        return o && o[HASOWNPROPERTY](prop);
     } : function(o, prop) {
         return !L.isUndefined(o[prop]) && 
-                o.constructor.prototype[prop] !== o[prop];
+                o[CONSTRUCTOR][PROTOTYPE][prop] !== o[prop];
     };
 
 // new lang wins
-OB.augmentObject(L, OB, true);
+OB[AUGMENTOBJECT](L, OB, true);
 
 /*
  * An alias for <a href="YAHOO.lang.html">YAHOO.lang</a>
  * @class YAHOO.util.Lang
  */
-YAHOO.util.Lang = L;
+Y.util.Lang = L;
  
 /**
  * Same as YAHOO.lang.augmentObject, except it only applies prototype 
@@ -1068,7 +1091,6 @@ YAHOO.util.Lang = L;
  *        be applied and will overwrite an existing property in
  *        the receiver
  */
-L.augment = L.augmentProto;
 
 /**
  * An alias for <a href="YAHOO.lang.html#augment">YAHOO.lang.augment</a>
@@ -1082,8 +1104,8 @@ L.augment = L.augmentProto;
  *        in the supplier will be used unless it would
  *        overwrite an existing property in the receiver
  */
-YAHOO.augment = L.augmentProto;
-       
+L.augment = Y.augment = L.augmentProto;
+
 /**
  * An alias for <a href="YAHOO.lang.html#extend">YAHOO.lang.extend</a>
  * @method extend
@@ -1094,7 +1116,7 @@ YAHOO.augment = L.augmentProto;
  *        subclass prototype.  These will override the
  *        matching items obtained from the superclass if present.
  */
-YAHOO.extend = L.extend;
+Y.extend = L.extend;
 
 })();
 YAHOO.register("yahoo", YAHOO, {version: "@VERSION@", build: "@BUILD@"});
