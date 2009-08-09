@@ -213,6 +213,7 @@ YAHOO.namespace("tool");
  * @module yuitest
  * @namespace YAHOO.tool
  * @requires yahoo,dom,event,logger
+ * @optional event-simulte
  */
 
 
@@ -1727,7 +1728,7 @@ YAHOO.util.ArrayAssert = {
                            message /*:String*/) /*:Void*/ {
         
         //one may be longer than the other, so get the maximum length
-        var len /*:int*/ = Math.max(expected.length, actual.length);
+        var len /*:int*/ = Math.max(expected.length, actual.length || 0);
         var Assert = YAHOO.util.Assert;
        
         //begin checking values
@@ -1760,7 +1761,7 @@ YAHOO.util.ArrayAssert = {
         }
         
         //one may be longer than the other, so get the maximum length
-        var len /*:int*/ = Math.max(expected.length, actual.length);
+        var len /*:int*/ = Math.max(expected.length, actual.length || 0);
         
         //begin checking values
         for (var i=0; i < len; i++){
@@ -1813,7 +1814,7 @@ YAHOO.util.ArrayAssert = {
                           message /*:String*/) /*:Void*/ {
         
         //one may be longer than the other, so get the maximum length
-        var len /*:int*/ = Math.max(expected.length, actual.length);
+        var len /*:int*/ = Math.max(expected.length, actual.length || 0);
         var Assert = YAHOO.util.Assert;
         
         //begin checking values

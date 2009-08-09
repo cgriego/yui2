@@ -954,14 +954,16 @@ loaded.
 <dt>insertBefore</dt>
 <dd>node or node id that will become the new node's nextSibling</dd>
 <dt>charset</dt>
-<dd>Node charset, default utf-8</dd>
+<dd>Node charset, deprecated, use 'attributes'</dd>
+<dt>attributes</dt>
+<dd>A hash of attributes to apply to dynamic nodes.</dd>
 </dl>
 <pre>
-YAHOO.util.Get.css("http://yui.yahooapis.com/2.3.1/build/menu/assets/skins/sam/menu.css");
+YAHOO.util.Get.css("http://yui.yahooapis.com/2.7.0/build/menu/assets/skins/sam/menu.css");
 </pre>
 <pre>
-YAHOO.util.Get.css(["http://yui.yahooapis.com/2.3.1/build/menu/assets/skins/sam/menu.css",
-"http://yui.yahooapis.com/2.3.1/build/logger/assets/skins/sam/logger.css"]);
+YAHOO.util.Get.css(["http://yui.yahooapis.com/2.7.0/build/menu/assets/skins/sam/menu.css",
+"http://yui.yahooapis.com/2.7.0/build/logger/assets/skins/sam/logger.css"]);
 </pre></span>
                                                         </dd>
                                                 </dl>
@@ -1183,14 +1185,16 @@ each script.
 <dd>node or node id that will become the new node's nextSibling</dd>
 </dl>
 <dt>charset</dt>
-<dd>Node charset, default utf-8</dd>
+<dd>Node charset, deprecated, use 'attributes'</dd>
+<dt>attributes</dt>
+<dd>A hash of attributes to apply to dynamic nodes.</dd>
 <dt>timeout</dt>
 <dd>Number of milliseconds to wait before aborting and firing the timeout event</dd>
 <pre>
 // assumes yahoo, dom, and event are already on the page
 &nbsp;&nbsp;YAHOO.util.Get.script(
-&nbsp;&nbsp;["http://yui.yahooapis.com/2.3.1/build/dragdrop/dragdrop-min.js",
-&nbsp;&nbsp;&nbsp;"http://yui.yahooapis.com/2.3.1/build/animation/animation-min.js"], &#123;
+&nbsp;&nbsp;["http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js",
+&nbsp;&nbsp;&nbsp;"http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"], &#123;
 &nbsp;&nbsp;&nbsp;&nbsp;onSuccess: function(o) &#123;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YAHOO.log(o.data); // foo
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new YAHOO.util.DDProxy("dd1"); // also new o.reference("dd1"); would work
@@ -1265,7 +1269,11 @@ each script.
                                 <li class=""><a href="module_dragdrop.html" title="dragdrop">dragdrop</a></li>
                                 <li class=""><a href="module_editor.html" title="editor">editor</a></li>
                                 <li class=""><a href="module_element.html" title="element">element</a></li>
+                                <li class=""><a href="module_element-delegate.html" title="element-delegate">element-delegate</a></li>
                                 <li class=""><a href="module_event.html" title="event">event</a></li>
+                                <li class=""><a href="module_event-delegate.html" title="event-delegate">event-delegate</a></li>
+                                <li class=""><a href="module_event-mouseenter.html" title="event-mouseenter">event-mouseenter</a></li>
+                                <li class=""><a href="module_event-simulate.html" title="event-simulate">event-simulate</a></li>
                                 <li class="selected"><a href="module_get.html" title="get">get</a></li>
                                 <li class=""><a href="module_history.html" title="history">history</a></li>
                                 <li class=""><a href="module_imagecropper.html" title="imagecropper">imagecropper</a></li>
@@ -1277,10 +1285,15 @@ each script.
                                 <li class=""><a href="module_paginator.html" title="paginator">paginator</a></li>
                                 <li class=""><a href="module_profiler.html" title="profiler">profiler</a></li>
                                 <li class=""><a href="module_profilerviewer.html" title="profilerviewer">profilerviewer</a></li>
+                                <li class=""><a href="module_progressbar.html" title="progressbar">progressbar</a></li>
                                 <li class=""><a href="module_resize.html" title="resize">resize</a></li>
                                 <li class=""><a href="module_selector.html" title="selector">selector</a></li>
                                 <li class=""><a href="module_slider.html" title="slider">slider</a></li>
+                                <li class=""><a href="module_storage.html" title="Storage">Storage</a></li>
                                 <li class=""><a href="module_stylesheet.html" title="stylesheet">stylesheet</a></li>
+                                <li class=""><a href="module_swf.html" title="swf">swf</a></li>
+                                <li class=""><a href="module_swfdetect.html" title="swfdetect">swfdetect</a></li>
+                                <li class=""><a href="module_swfstore.html" title="swfstore">swfstore</a></li>
                                 <li class=""><a href="module_tabview.html" title="tabview">tabview</a></li>
                                 <li class=""><a href="module_treeview.html" title="treeview">treeview</a></li>
                                 <li class=""><a href="module_uploader.html" title="uploader">uploader</a></li>

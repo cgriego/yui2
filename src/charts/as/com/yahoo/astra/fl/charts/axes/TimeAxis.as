@@ -1,11 +1,13 @@
 package com.yahoo.astra.fl.charts.axes
 {
 	import com.yahoo.astra.fl.charts.series.ISeries;
+	import com.yahoo.astra.fl.charts.series.CartesianSeries;
 	import com.yahoo.astra.fl.charts.CartesianChart;
 	import com.yahoo.astra.utils.DateUtil;
 	import com.yahoo.astra.utils.TimeUnit;
 	import fl.core.UIComponent;
 	import flash.text.TextFormat;
+	import flash.events.ErrorEvent;
 
 	/**
 	 * An axis type representing a date and time range from minimum to maximum
@@ -418,7 +420,18 @@ package com.yahoo.astra.fl.charts.axes
 			if(this.labelFunction != null)
 			{
 				var numericValue:Number = this.valueToNumber(value);
-				text = this.labelFunction(new Date(numericValue), this.majorTimeUnit);
+				try
+				{
+					text = this.labelFunction(new Date(numericValue), this.majorTimeUnit);
+				}
+				catch(e:Error)
+				{
+					//dispatch error event from the chart
+					var message:String = "There is an error in your ";
+					message += (ICartesianAxisRenderer(this.renderer).orientation == AxisOrientation.VERTICAL)?"y":"x";
+					message += "-axis labelFunction.";
+					this.chart.dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, message));
+				}
 			}			
 			if(text == null)
 			{
@@ -525,7 +538,7 @@ package com.yahoo.astra.fl.charts.axes
 		/**
 		 * @inheritDoc
 		 */
-		public function getMaxLabel():String
+		override public function getMaxLabel():String
 		{
 			var maxAbbrevDate:String = this.valueToLabel(new Date(2008, 4, 30)) as String;
 			var maxFullDate:String = this.valueToLabel(new Date(2009, 8, 30)) as String;
@@ -665,39 +678,37 @@ package com.yahoo.astra.fl.charts.axes
 			var approxLabelDistance:Number = this.idealPixels;
 			if(this.calculateByLabelSize)
 			{
-				var rotation:Number;
+				var rotation:Number = (this.renderer as UIComponent).getStyle("labelRotation") as Number;
 				//Check to see if this axis is horizontal. Since the width of labels will be variable, we will need to apply a different alogrithm to determine the majorUnit.
 				if(chart.horizontalAxis == this)
 				{
 					//extract the approximate width of the labels by getting the textWidth of the maximum date when rendered by the label function with the textFormat of the renderer.
-					approxLabelDistance = this.maxLabelWidth;
-					rotation = chart.getHorizontalAxisStyle("labelRotation") as Number;
+					approxLabelDistance = this.labelData.maxLabelWidth;
 					if(rotation == 0 || Math.abs(rotation) == 90)
 					{
-						if(!isNaN(chart.horizontalAxisLabelData.rightLabelOffset)) overflow += chart.horizontalAxisLabelData.rightLabelOffset as Number;
-						if(!isNaN(chart.horizontalAxisLabelData.leftLabelOffset)) overflow += chart.horizontalAxisLabelData.leftLabelOffset as Number;
+						if(!isNaN(this.labelData.rightLabelOffset)) overflow += this.labelData.rightLabelOffset as Number;
+						if(!isNaN(this.labelData.leftLabelOffset)) overflow += this.labelData.leftLabelOffset as Number;
 					}
 					else
 					{
-						if(rotation > 0 && !isNaN(chart.horizontalAxisLabelData.rightLabelOffset)) overflow += chart.horizontalAxisLabelData.rightLabelOffset as Number;
-						if(rotation < 0 && !isNaN(chart.horizontalAxisLabelData.leftLabelOffset)) overflow += chart.horizontalAxisLabelData.leftLabelOffset as Number;
+						if(rotation > 0 && !isNaN(this.labelData.rightLabelOffset)) overflow += this.labelData.rightLabelOffset as Number;
+						if(rotation < 0 && !isNaN(this.labelData.leftLabelOffset)) overflow += this.labelData.leftLabelOffset as Number;
 					}
 				}
 				else
 				{
-					approxLabelDistance = this.maxLabelHeight;	
-					rotation = chart.getVerticalAxisStyle("labelRotation") as Number;
+					approxLabelDistance = this.labelData.maxLabelHeight;	
 					if(rotation == 0 || Math.abs(rotation) ==90)
 					{
-						if(!isNaN(chart.verticalAxisLabelData.topLabelOffset)) overflow = chart.verticalAxisLabelData.topLabelOffset as Number;
+						if(!isNaN(this.labelData.topLabelOffset)) overflow = this.labelData.topLabelOffset as Number;
 					}
 					else
 					{
-						if(rotation < 0 && !isNaN(chart.verticalAxisLabelData.bottomLabelOffset)) overflow += chart.verticalAxisLabelData.bottomLabelOffset as Number;
-						if(rotation > 0 && !isNaN(chart.verticalAxisLabelData.topLabelOffset)) overflow += chart.verticalAxisLabelData.topLabelOffset as Number;
+						if(rotation < 0 && !isNaN(this.labelData.bottomLabelOffset)) overflow += this.labelData.bottomLabelOffset as Number;
+						if(rotation > 0 && !isNaN(this.labelData.topLabelOffset)) overflow += this.labelData.topLabelOffset as Number;
 					}
 				}
-			 	labelSpacing = this.labelSpacing; 
+			 	labelSpacing = UIComponent(this.renderer).getStyle("labelSpacing") as Number; 
 				approxLabelDistance += (labelSpacing*2);
 			}
 			
@@ -715,6 +726,7 @@ package com.yahoo.astra.fl.charts.axes
 			var ratio:Number = overflow/this.renderer.length;
 			var overflowOffset:Number = Math.round(ratio*dateDifference);
 			if(isNaN(overflowOffset)) overflowOffset = 0;
+			
 			tempMajorUnit = (dateDifference + overflowOffset)/maxLabels;
 			tempMajorUnit = Math.ceil(tempMajorUnit);
 			
@@ -977,6 +989,8 @@ package com.yahoo.astra.fl.charts.axes
 			for(var i:int = 0; i < seriesCount; i++)
 			{
 				var series:ISeries = ISeries(this.dataProvider[i]);
+				
+				
 				var seriesLength:int = series.length;
 				for(var j:int = 0; j < seriesLength; j++)
 				{
@@ -1014,6 +1028,8 @@ package com.yahoo.astra.fl.charts.axes
 			
 			this._dataMinimum = new Date(min);
 			this._dataMaximum = new Date(max);
+			
+			super.parseDataProvider();
 		}		
 	}
 }

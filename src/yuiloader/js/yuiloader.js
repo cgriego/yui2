@@ -86,6 +86,7 @@
             'type': 'js',
             'path': 'calendar/calendar-min.js',
             'requires': ['event', 'dom'],
+            supersedes: ['datemeth'],
             'skinnable': true
         },
 
@@ -114,7 +115,15 @@
         'connection': {
             'type': 'js',
             'path': 'connection/connection-min.js',
-            'requires': ['event']
+            'requires': ['event'],
+            'supersedes': ['connectioncore'],
+        },
+
+        'connectioncore': {
+            'type': 'js',
+            'path': 'connection/connection_core-min.js',
+            'requires': ['event'],
+            'pkg': 'connection'
         },
 
         'container': {
@@ -157,6 +166,12 @@
             'skinnable': true
         },
 
+        datemath: {
+            'type': 'js',
+            'path': 'datemath/datemath-min.js',
+            'requires': ['yahoo']
+        },
+
         'dom': {
             'type': 'js',
             'path': 'dom/dom-min.js',
@@ -181,13 +196,39 @@
         'element': {
             'type': 'js',
             'path': 'element/element-min.js',
-            'requires': ['dom', 'event']
+            'requires': ['dom', 'event'],
+            'optional': ['event-mouseenter', 'event-delegate']
+        },
+
+        'element-delegate': {
+            'type': 'js',
+            'path': 'element-delegate/element-delegate-min.js',
+            'requires': ['element']
         },
 
         'event': {
             'type': 'js',
             'path': 'event/event-min.js',
             'requires': ['yahoo']
+        },
+
+        'event-simulate': {
+            'type': 'js',
+            'path': 'event-simulate/event-simulate-min.js',
+            'requires': ['event']
+        },
+
+        'event-delegate': {
+            'type': 'js',
+            'path': 'event-delegate/event-delegate-min.js',
+            'requires': ['dom', 'event'],
+            'optional': ['selector']
+        },
+
+        'event-mouseenter': {
+            'type': 'js',
+            'path': 'event-mouseenter/event-mouseenter-min.js',
+            'requires': ['dom', 'event']
         },
 
         'fonts': {
@@ -327,11 +368,36 @@
             'skinnable': true
         },
 
+        'storage': {
+            'type': 'js',
+            'path': 'storage/storage-min.js',
+            'requires': ['yahoo', 'event', 'cookie'],
+            'optional': ['swfstore']
+        },
+
          'stylesheet': {
             'type': 'js',
             'path': 'stylesheet/stylesheet-min.js',
             'requires': ['yahoo']
          },
+
+        'swf': {
+            'type': 'js',
+            'path': 'swf/swf-min.js',
+            'requires': ['yahoo', 'dom', 'event', 'element']
+        },
+
+        'swfdetect': {
+            'type': 'js',
+            'path': 'swfdetect/swfdetect-min.js',
+            'requires': ['yahoo']
+        },
+
+        'swfstore': {
+            'type': 'js',
+            'path': 'swfstore/swfstore-min.js',
+            'requires': ['yahoo', 'dom', 'event', 'element', 'cookie']
+        },
 
         'tabview': {
             'type': 'js',
@@ -351,7 +417,7 @@
 
         'uploader': {
             'type': 'js',
-            'path': 'uploader/uploader.js',
+            'path': 'uploader/uploader-min.js',
             'requires': ['element']
         },
 
@@ -391,6 +457,7 @@
             'type': 'js',
             'path': 'yuitest/yuitest-min.js',
             'requires': ['logger'],
+            'optional': ['event-simulate'],
             'skinnable': true
         }
     }
@@ -1975,3 +2042,4 @@ throw new Error("You must supply an onSuccess handler for your sandbox");
     };
 
 })();
+
